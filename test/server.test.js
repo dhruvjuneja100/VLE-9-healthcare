@@ -74,3 +74,29 @@ test("Unknown routes should return 404", async () => {
 
     assert.equal(response.status, 404);
 });
+test("POST /patients should reject malformed JSON", async () => {
+    const response = await fetch(`${baseUrl}/patients`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: '{"name": "Test Patient", invalid}'
+    });
+
+    const data = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.equal(data.error, "Invalid JSON request");
+});
+
+test("POST /patients should terminate oversized requests", async () => {
+    await assert.rejects(
+        fetch(`${baseUrl}/patients`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                name: "A".repeat(11000),
+                age: 25,
+                condition: "General Checkup"
+            })
+        })
+    );
+});
