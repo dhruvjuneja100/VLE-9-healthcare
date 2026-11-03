@@ -1,8 +1,8 @@
+
 pipeline {
     agent any
 
     stages {
-
         stage('Checkout') {
             steps {
                 echo 'Checking out Healthcare Application'
@@ -12,32 +12,45 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                echo 'Installing project dependencies'
                 sh 'npm ci'
             }
         }
 
         stage('Automated Tests') {
             steps {
-                echo 'Running automated API tests'
                 sh 'npm test'
             }
         }
 
         stage('Code Coverage') {
             steps {
-                echo 'Generating code coverage report'
                 sh 'npm run test:coverage'
             }
         }
 
         stage('SAST - SonarQube Analysis') {
             steps {
-                echo 'Starting SonarQube security analysis'
-
                 withSonarQubeEnv('SonarQube') {
                     sh '/usr/local/bin/sonar-scanner'
                 }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t healthcare-app:v2 .'
+            }
+        }
+
+        stage('Trivy Security Scan') {
+            steps {
+                sh '''
+                    trivy image \
+                    --scanners vuln,misconfig,secret \
+                    --severity HIGH,CRITICAL \
+                    --exit-code 1 \
+                    healthcare-app:v2
+                '''
             }
         }
     }
@@ -46,9 +59,9 @@ pipeline {
         success {
             echo 'Healthcare DevSecOps pipeline completed successfully!'
         }
-
         failure {
             echo 'Pipeline failed. Please check the console output.'
         }
     }
 }
+
