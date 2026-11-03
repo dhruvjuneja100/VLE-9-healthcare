@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -11,14 +10,33 @@ pipeline {
             }
         }
 
+        stage('Install Dependencies') {
+            steps {
+                echo 'Installing project dependencies'
+                sh 'npm ci'
+            }
+        }
+
+        stage('Automated Tests') {
+            steps {
+                echo 'Running automated API tests'
+                sh 'npm test'
+            }
+        }
+
+        stage('Code Coverage') {
+            steps {
+                echo 'Generating code coverage report'
+                sh 'npm run test:coverage'
+            }
+        }
+
         stage('SAST - SonarQube Analysis') {
             steps {
                 echo 'Starting SonarQube security analysis'
 
                 withSonarQubeEnv('SonarQube') {
-                    sh '''
-                        /usr/local/bin/sonar-scanner
-                    '''
+                    sh '/usr/local/bin/sonar-scanner'
                 }
             }
         }
