@@ -2,10 +2,6 @@
 pipeline {
     agent any
 
-    tools {
-        // SonarScanner is already installed on the EC2 machine.
-    }
-
     stages {
 
         stage('Checkout') {
@@ -21,7 +17,7 @@ pipeline {
 
                 withSonarQubeEnv('SonarQube') {
                     sh '''
-                        sonar-scanner
+                        /usr/local/bin/sonar-scanner
                     '''
                 }
             }
