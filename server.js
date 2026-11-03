@@ -98,6 +98,10 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Healthcare application running on port ${PORT}`);
-});
+if (require.main === module) {
+  server.listen(PORT, "0.0.0.0", () => {
+    console.log(`Healthcare application running on port ${PORT}`);
+  });
+}
+
+module.exports = { server, patients };
