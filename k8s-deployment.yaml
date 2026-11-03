@@ -1,0 +1,36 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: healthcare-app
+  labels:
+    app: healthcare-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: healthcare-app
+  template:
+    metadata:
+      labels:
+        app: healthcare-app
+    spec:
+      containers:
+        - name: healthcare-app
+          image: healthcare-app:v3
+          imagePullPolicy: Never
+          env:
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: healthcare-secret
+                  key: API_KEY
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
